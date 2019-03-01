@@ -1,5 +1,10 @@
 // Open file
-get("b_lovely_landscapes.txt")
+// a_example.txt
+// b_lovely_landscapes.txt
+// c_memorable_moments.txt
+// d_pet_pictures.txt
+// e_shiny_selfies.txt
+get("c_memorable_moments.txt")
     .then(file => {
         let imagesArray = populateImageArray(file);
         // console.log(imagesArray);
@@ -7,17 +12,24 @@ get("b_lovely_landscapes.txt")
         let slides = createSlides(imagesArray);
         // console.log(slides);
 
-        // let slidecombinations = getCombinationOfSlidesWithScore(slides);
-        console.log(slideshow);
+        let slidecombinations = getCombinationOfSlidesWithScore(slides);
+        // console.log(slidecombinations);
 
-        // let slideshow = createslideshow(slidecombinations);
+        let slideshow = createslideshow(slidecombinations);
         // console.log(slideshow);
 
-        // console.log(slideshow.length);
+        let output = "";
 
-        // slideshow.forEach(function (item) {
-        //     console.log(item.getid());
-        // });
+        output += slideshow.length + "</br>";
+
+        slideshow.forEach(function (item) {
+            item.getid().forEach(i => {
+                output += i + "&nbsp";
+            })
+            output += "</br>";
+        });
+
+        document.getElementById('out').innerHTML = output;
     });
 
 // Open file
@@ -60,34 +72,49 @@ function createSlides(arr) {
 
     // Push horizontal images to slide
     horizontals.forEach(function (img) {
-        let slideObj = new Slide(img.getid() + "", [img], img.getTagsArr());
+        let slideObj = new Slide([img.getid()], [img], img.getTagsArr());
         slides.push(slideObj);
     });
 
     // verticals image
+
+    let usedNum = [];
+
     for (let i = 0; i < verticals.length; i += 2) {
+        let size = verticals.length;
 
-        // Get rnd num between 0 and 1
-        let rnd = getRandomInt(3);
+        let rnd1 = getRandomInt(size - 1);
+        let rnd2 = getRandomInt(size - 1);
 
-        // Combine tags of 2 images
-        let slideObj;
-        let slideid = verticals[i].getid() + " " + verticals[i + 1].getid();
+        if (usedNum.indexOf(rnd1) == -1 && usedNum.indexOf(rnd2) == -1 && (rnd1 !== rnd2)) {
 
-        if (rnd == 0) {
-            // Tags of first image
-            slideObj = new Slide(slideid, [verticals[i], verticals[i + 1]], verticals[i].getTagsArr());
-        } else if (rnd == 1) {
-            // Tags of 2nd image
-            slideObj = new Slide(slideid, [verticals[i], verticals[i + 1]], verticals[i + 1].getTagsArr());
-        } else if (rnd == 2) {
-            // Tags of both image
-            let tags = verticals[i].getTagsArr().concat(verticals[i + 1].getTagsArr());
-            let unique = [...new Set(tags)];
-            slideObj = new Slide(slideid, [verticals[i], verticals[i + 1]], Array.from(unique));
+            // Get rnd num between 0 and 1
+            let rnd = getRandomInt(3);
+
+            // Combine tags of 2 images
+            let slideObj;
+
+            let slideid = [verticals[rnd1].getid(), verticals[rnd2].getid()];
+
+
+            if (rnd == 0) {
+                // Tags of first image
+                slideObj = new Slide(slideid, [verticals[rnd1], verticals[rnd2]], verticals[rnd1].getTagsArr());
+            } else if (rnd == 1) {
+                // Tags of 2nd image
+                slideObj = new Slide(slideid, [verticals[rnd1], verticals[rnd2]], verticals[rnd2].getTagsArr());
+            } else if (rnd == 2) {
+                // Tags of both image
+                let tags = verticals[rnd1].getTagsArr().concat(verticals[rnd2].getTagsArr());
+                let unique = [...new Set(tags)];
+                slideObj = new Slide(slideid, [verticals[rnd1], verticals[rnd2]], Array.from(unique));
+            }
+
+            slides.push(slideObj);
+            usedNum.push(rnd1);
+            usedNum.push(rnd2);
         }
 
-        slides.push(slideObj);
 
     }
 
@@ -100,38 +127,32 @@ function getCombinationOfSlidesWithScore(arr) {
     let slideshow = [];
 
     for (let x = 0; x < size; x++) {
-        for (let y = 0; y < size; y++) {
+        let rndx = getRandomInt(size - 1);
+        let rndy = getRandomInt(size - 1);
 
-            if (x !== y) {
+        // Get tags array of each slide
+        let tagsx = arr[rndx].getTagsArr();
+        let tagsy = arr[rndy].getTagsArr();
 
-                // Get tags array of each slide
-                let tagsx = arr[x].getTagsArr();
-                let tagsy = arr[y].getTagsArr();
+        let setx = new Set([...tagsx]);
 
+        // Count number of similar tags between 2 img
+        let countSimilar = 0;
 
-                for (let z = 0; z < tagsx.length; z++) {
-                    // Count number of similar tags between 2 img
-                    let countSimilar = 0;
-
-                    // Compare each tags
-                    for (let w = 0; w < tagsy.length; w++) {
-                        if (tagsx[z] == tagsy[w]) {
-                            countSimilar++;
-                        }
-                    }
-                    let countDiffx = tagsx.length - countSimilar;
-                    let countDiffy = tagsy.length - countSimilar;
-
-                    let score = findMinimum(countSimilar, countDiffx, countDiffy);
-
-                    let slideShowObj = new Slideshow(arr[x], arr[y], score)
-
-                    slideshow.push(slideShowObj);
-
-                }
+        // Compare each tags
+        for (let w = 0; w < tagsy.length; w++) {
+            if (setx.has(tagsy[w])) {
+                countSimilar++;
             }
-
         }
+        let countDiffx = tagsx.length - countSimilar;
+        let countDiffy = tagsy.length - countSimilar;
+
+        let score = findMinimum(countSimilar, countDiffx, countDiffy);
+
+        let slideShowObj = new Slideshow(arr[rndx], arr[rndy], score)
+
+        slideshow.push(slideShowObj);
 
     }
     // sort array in descending order of similar tags
@@ -141,15 +162,31 @@ function getCombinationOfSlidesWithScore(arr) {
 // Arrange slides into slideshow
 function createslideshow(arr) {
 
-    let finalslideshow = new Set();
+    let finalslideshow = [];
+    let usedId = new Set();
 
     for (let z = 0; z < arr.length; z++) {
         const element = arr[z];
 
-        finalslideshow.add(element.getslide1());
-        finalslideshow.add(element.getslide2());
+        let id1 = element.getslide1().getid()
+        let id2 = element.getslide2().getid()
+
+        let intersection = Array.from(usedId).filter(x => id1.includes(x));
+        let intersection2 = Array.from(usedId).filter(x => id2.includes(x));
+
+
+        if (intersection.length == 0 && intersection2.length == 0) {
+            // console.log(intersection);
+            // console.log(intersection2);
+            finalslideshow.push(element.getslide1());
+            finalslideshow.push(element.getslide2());
+            usedId.add(...id1);
+            usedId.add(...id2);
+        }
     }
-    return Array.from(finalslideshow);
+
+    // console.log(usedId);
+    return finalslideshow;
 }
 
 function findMinimum(a, b, c) {
