@@ -20,16 +20,12 @@ class ImageObj {
 }
 
 class Slide {
-    constructor(id, imageArr, tags) {
-        this.imageArr = imageArr;
-        this.tags = tags;
+    constructor(id, tags) {
         this.id = id;
+        this.tags = tags;
     }
     getid() {
         return this.id;
-    }
-    getImageArr() {
-        return this.imageArr;
     }
     getTagsArr() {
         return this.tags;
@@ -52,3 +48,6 @@ class Slideshow {
         return this.score;
     }
 }
+
+
+
