@@ -1,22 +1,22 @@
 // Open file
 
 // get("a_example.txt")
-get("b_lovely_landscapes.txt")
-    // get("c_memorable_moments.txt")
+// get("b_lovely_landscapes.txt")
+get("c_memorable_moments.txt")
     // get("d_pet_pictures.txt")
     // get("e_shiny_selfies.txt")
     .then(file => {
         let imagesArray = populateImageArray(file);
-        // console.log(imagesArray);
+        console.log("Number of images: " + imagesArray.length);
 
         let slides = createSlides(imagesArray);
-        // console.log(slides);
+        console.log("Number of slides: " + slides.length);
 
         let slidecombinations = getCombinationOfSlidesWithScore(slides);
-        // console.log(slidecombinations);
+        console.log("Combination of slides with score > 0: " + slidecombinations.length);
 
         let slideshow = createslideshow(slidecombinations);
-        // console.log(slideshow);
+        console.log("Number of slides in slideshow: " + slideshow.length);
 
         let output = "";
 
@@ -74,23 +74,26 @@ function createSlides(images) {
         slides.push(slideObj);
     });
 
-    // verticalImages 
-    for (let i = 0; i < verticalImages.length - 1; i += 2) {
-        let img1 = verticalImages[i];
-        let img2 = verticalImages[i + 1];
-        let min;
+    let verticalSize = verticalImages.length;
 
-        // if (img1.getTagsArr().length <= img1.getTagsArr().length) {
-        //     min = img1;
-        // } else {
-        //     min = img2;
-        // }
-        let tags = Array.from(new Set(...img1.getTagsArr(), ...img2.getTagsArr()));
-        let slideObj = new Slide([img1.getid(), img2.getid()], tags);
-        slides.push(slideObj);
+    // verticalImages 
+    for (let i = 0; i < 100000; i += 2) {
+        let n1 = getRandomInt(verticalSize);
+        let n2 = getRandomInt(verticalSize);
+
+
+        if (n1 !== n2) {
+
+            let img1 = verticalImages[n1];
+            let img2 = verticalImages[n2];
+
+            let tags = Array.from(new Set(...img1.getTagsArr(), ...img2.getTagsArr()));
+            let slideObj = new Slide([img1.getid(), img2.getid()], tags);
+            slides.push(slideObj);
+        }
     }
 
-    return slides.sort((a, b) => b.getTagsArr().length - a.getTagsArr().length)
+    return slides//.sort((a, b) => b.getTagsArr().length - a.getTagsArr().length)
 
 }
 
@@ -98,16 +101,22 @@ function getCombinationOfSlidesWithScore(slides) {
     let size = slides.length;
     let slideshow = [];
 
-    for (let x = 0; x < size - 1; x++) {
+    for (let x = 0; x < 100000; x++) {
 
-        let score = calculateScoreBetweenSlides(slides[x], slides[x + 1])
+        let n1 = getRandomInt(size);
+        let n2 = getRandomInt(size);
 
-        if (score > 0) {
+        if (n1 !== n2) {
 
-            let slideShowObj = new Slideshow(slides[x], slides[x + 1], score)
-            slideshow.push(slideShowObj);
+            let score = calculateScoreBetweenSlides(slides[n1], slides[n2])
+            if (score > 0) {
 
+                let slideShowObj = new Slideshow(slides[n1], slides[n2], score)
+                slideshow.push(slideShowObj);
+
+            }
         }
+
 
 
     }
